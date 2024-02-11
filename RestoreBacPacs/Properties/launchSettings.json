@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RestoreBacPacs": {
+      "commandName": "Project",
+      "commandLineArgs": "-e test -d businesspartner -s localhost.localdomain -l admin -p Pbolaget01"
+    }
+  }
+}
