@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using System.Text.RegularExpressions;
+using CommandLine;
 using RestoreBacPacs;
 
 internal class Program
@@ -24,7 +25,7 @@ internal class Program
         var username = Environment.GetEnvironmentVariable("USERNAME");
         string filePath = @"C:\users\{0}\AppData\Local\Temp\Gsp.DevTools\Bacpacs\{1}";
         var bacPacs = Directory.GetFiles(string.Format(filePath, username, namedParams.Environment));
-        var filteredBacPacs = bacPacs.Where(x => !x.Contains("-patched")).ToList();
+        var filteredBacPacs = bacPacs.Where(x => x.Contains("-patched")).ToList();
         if (!namedParams.DatabaseName.Equals("all", StringComparison.CurrentCultureIgnoreCase))
         {
             filteredBacPacs = filteredBacPacs.Where(x => x.Contains(namedParams.DatabaseName, StringComparison.CurrentCultureIgnoreCase)).ToList();
@@ -33,8 +34,12 @@ internal class Program
         foreach (var bacPac in filteredBacPacs)
         {
             token.ThrowIfCancellationRequested();
-            var fileName = Path.GetFileName(bacPac).Split('.')[0];
-
+            var file = Path.GetFileName(bacPac);
+            // strip away patched.bacpac.
+            const string pattern = @"-patched\.bacpac$";
+            
+            var fileName = Regex.Replace(file, pattern, "");
+            
             Console.WriteLine("Closing connection to {0}", fileName);
             await db.CloseConnectionAsync(fileName, token);
 
